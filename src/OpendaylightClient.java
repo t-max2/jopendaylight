@@ -3,21 +3,47 @@ package jOpendaylight;
 import java.io.IOException;
 import java.net.MalformedURLException;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OpendaylightClient {
-	private final String userAccount = "admin";
-	private final String userPassword = "admin";
-	private final String defaultContainerName = "default";
+	private final static String defaultControllerIp = "127.0.0.1";
+	private final static String defaultRestPort = "8080";
 	
+	private final static String defaultUserAccount = "admin";
+	private final static String defaultUserPassword = "admin";
+	
+	private final static String defaultContainerName = "default";
+	
+	private String restPort;
+	private String userAccount;
+	private String userPassword;
 	private String controllerIp;
-	private String requestPrefix;
+	private String currentContainerName;
 	
-	//	constructor
+	private String requestPrefix;
+	private ObjectMapper mapper;
+	
+	//	constructor with nothing
+	public OpendaylightClient(){
+		this(defaultControllerIp, defaultRestPort, defaultUserAccount, defaultUserPassword, defaultContainerName);
+	}
+	//	constructor with only ip
 	public OpendaylightClient(String ip){
-		this.controllerIp = ip;
-		this.requestPrefix = "http://" + controllerIp + ":8080";
+		this(ip, defaultRestPort, defaultUserAccount, defaultUserPassword, defaultContainerName);
+	}
+
+	//	base constructor
+	public OpendaylightClient(String ip, String port, String account, String password, String container){
+		controllerIp = ip;
+		restPort = port;
+		userAccount = account;
+		userPassword = password;
+		currentContainerName = container;
+		
+		requestPrefix = "http://" + controllerIp + ":" + restPort;
+		mapper = new ObjectMapper();
 	}
 	
 	//	---------------------------
@@ -31,13 +57,14 @@ public class OpendaylightClient {
 	 */
 	
 	//	Retrieve the Topology
-	public JSONObject getTopology() throws MalformedURLException, JSONException, IOException, RuntimeException{
-		return getTopology(defaultContainerName);
+	public JsonNode getTopology() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return mapper.readTree(getTopology(currentContainerName));
 	}
 	
 	//	Retrieve the Topology, base method
-	public JSONObject getTopology(String containerName) throws MalformedURLException, JSONException, IOException, RuntimeException{
+	public String getTopology(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
 		String mountPoint = "/controller/nb/v2/topology/" + containerName;
-		return new JSONObject(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+		
+		return RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword);
 	}
 }
