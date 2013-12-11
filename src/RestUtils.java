@@ -136,6 +136,11 @@ public class RestUtils {
 	
 	//	HTTP DELETE with source id in URI version(Normal Delete)
 	public static String doDelete(String urlString) throws ClientProtocolException, IOException{
+		return doDelete(urlString, null, null);
+	}
+	
+	//	HTTP DELETE with source id in URI version(Normal Delete), base method
+	public static String doDelete(String urlString, String account, String password) throws ClientProtocolException, IOException{
 		HttpClient hc;
 		HttpResponse response;
 		HttpEntity responseEntity;
@@ -146,14 +151,29 @@ public class RestUtils {
 		
 		//	set request
 		deleteRequest = new HttpDelete(urlString);
+		deleteRequest.setHeader("Accept", "application/json");
+		
+		//	handle HTTP Basic authentication if any
+		if(account != null && password != null){
+			String encoding = Base64.encodeBase64String((account + ":" + password).getBytes());
+			deleteRequest.setHeader("Authorization", "Basic " + encoding);
+		}
 		
 		//	get response
 		response = hc.execute(deleteRequest);
 		responseEntity = response.getEntity();
 		
 		//	return content
-		if(responseEntity != null)
-			return EntityUtils.toString(responseEntity);
+		if(responseEntity != null){
+			//	FIXME: add more HTTP OK codes if needed
+			if(response.getStatusLine().getStatusCode() == 204){
+				return EntityUtils.toString(responseEntity);
+			}
+			else{
+				//	NOT OK
+				throw new RuntimeException("Failed: HTTP error code: " + response.getStatusLine().getStatusCode() + " - " + EntityUtils.toString(responseEntity));
+			}
+		}
 		else
 			return null;
 	}
@@ -191,28 +211,49 @@ public class RestUtils {
 	//	-------------------
 	
 	public static String doPut(String urlString, String paraString) throws ClientProtocolException, IOException{
+		return doPut(urlString, paraString, null, null);
+	}
+	
+	//	base PUT method
+	public static String doPut(String urlString, String paraString, String account, String password) throws ClientProtocolException, IOException{
 		HttpClient hc;
 		HttpResponse response;
 		HttpEntity responseEntity;
 		StringEntity paraStringEntity;
-		HttpPut deleteRequest;
+		HttpPut putRequest;
 		
 		//	construct http client
 		hc = new DefaultHttpClient();
 		
 		//	set request
 		paraStringEntity = new StringEntity(paraString);
+		paraStringEntity.setContentType("application/json");
 		
-		deleteRequest = new HttpPut(urlString);
-		deleteRequest.setEntity(paraStringEntity);
+		putRequest = new HttpPut(urlString);
+		putRequest.setHeader("Accept", "application/json");
+		putRequest.setEntity(paraStringEntity);
+		
+		//	handle HTTP Basic authentication if any
+		if(account != null && password != null){
+			String encoding = Base64.encodeBase64String((account + ":" + password).getBytes());
+			putRequest.setHeader("Authorization", "Basic " + encoding);
+		}
 		
 		//	get response
-		response = hc.execute(deleteRequest);
+		response = hc.execute(putRequest);
 		responseEntity = response.getEntity();
 		
 		//	return content
-		if(responseEntity != null)
-			return EntityUtils.toString(responseEntity);
+		if(responseEntity != null){
+			//	FIXME: add more HTTP OK codes if needed
+			if(response.getStatusLine().getStatusCode() == 201){
+				return EntityUtils.toString(responseEntity);
+			}
+			else{
+				//	NOT OK
+				throw new RuntimeException("Failed: HTTP error code: "+ response.getStatusLine().getStatusCode() + " - " + EntityUtils.toString(responseEntity));
+			}
+		}
 		else
 			return null;
 	}

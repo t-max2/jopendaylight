@@ -9,7 +9,10 @@ public class ApplicationStarter {
 	public static void main(String[] args)
 			throws JsonProcessingException, MalformedURLException, IOException, RuntimeException {
 		//	TODO
-		OpendaylightClient oc = new OpendaylightClient("127.0.0.1");
-		System.out.println(oc.getTopology());
+		OpendaylightClient oc = new OpendaylightClient();
+		//	oc.addUserLink("link4", "00:00:00:00:00:00:00:03", 2, "00:00:00:00:00:00:00:04", 1);
+		//	oc.deleteUserLink("link2");
+		//	oc.deleteUserLink("link3");
+		System.out.println(oc.getUserLinks());
 	}
 }
