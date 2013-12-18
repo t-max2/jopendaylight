@@ -504,4 +504,98 @@ public class OpendaylightClient {
 		String mountPoint = "/controller/nb/v2/staticroute/" + containerName + "/route/" + routeName;
 		return RestUtils.doDelete(requestPrefix + mountPoint, userAccount, userPassword);
 	}
+	
+	/*
+	 * Title:    Statistics REST APIs
+	 * Module:   org.opendaylight.controller.statistics.northbound.StatisticsNorthbound
+	 * Returns various Statistics exposed by the Southbound protocol plugins such as Openflow. 
+	 * API page: http://goo.gl/n2n0kV
+	 */
+	
+	//	Returns a list of all Flow Statistics from all the Nodes.
+	public JsonNode getFlowStatistics() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getFlowStatistics(currentContainerName);
+	}
+	
+	//	base method
+	//	Returns a list of all Flow Statistics from all the Nodes.
+	public JsonNode getFlowStatistics(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/statistics/" + containerName + "/flow";
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Returns a list of all the Port Statistics across all the NodeConnectors on all the Nodes.
+	public JsonNode getPortStatistics() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getPortStatistics(currentContainerName);
+	}
+	
+	//	base method
+	//	Returns a list of all the Port Statistics across all the NodeConnectors on all the Nodes.
+	public JsonNode getPortStatistics(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/statistics/" + containerName + "/port";
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Returns a list of all the Table Statistics on all Nodes.
+	public JsonNode getTableStatistics() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getTableStatistics(currentContainerName);
+	}
+	
+	//	base method
+	//	Returns a list of all the Table Statistics on all Nodes.
+	public JsonNode getTableStatistics(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/statistics/" + containerName + "/table";
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Returns a list of Flow Statistics for a given Node.
+	public JsonNode getOpenFlowFlowStatistics(String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getFlowStatistics(TYPE_OPENFLOW, nodeId);
+	}
+	
+	//	Returns a list of Flow Statistics for a given Node.
+	public JsonNode getFlowStatistics(String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getFlowStatistics(currentContainerName, nodeType, nodeId);
+	}
+	
+	//	base method
+	//	Returns a list of Flow Statistics for a given Node.
+	public JsonNode getFlowStatistics(String containerName, String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/statistics/" + containerName + "/flow/node/" + nodeType + "/" + nodeId;
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Returns a list of all the Port Statistics across all the NodeConnectors in a given Node.
+	public JsonNode getOpenFlowPortStatistics(String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getPortStatistics(TYPE_OPENFLOW, nodeId);
+	}
+	
+	//	Returns a list of all the Port Statistics across all the NodeConnectors in a given Node.
+	public JsonNode getPortStatistics(String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getPortStatistics(currentContainerName, nodeType, nodeId);
+	}
+	
+	//	base method
+	//	Returns a list of all the Port Statistics across all the NodeConnectors in a given Node.
+	public JsonNode getPortStatistics(String containerName, String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/statistics/" + containerName + "/port/node/" + nodeType + "/" + nodeId;
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Returns a list of all the Table Statistics on a specific node.
+	public JsonNode getOpenFlowTableStatistics(String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getTableStatistics(TYPE_OPENFLOW, nodeId);
+	}
+	
+	//	Returns a list of all the Table Statistics on a specific node.
+	public JsonNode getTableStatistics(String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getTableStatistics(currentContainerName, nodeType, nodeId);
+	}
+	
+	//	base method
+	//	Returns a list of all the Table Statistics on a specific node.
+	public JsonNode getTableStatistics(String containerName, String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/statistics/" + containerName + "/table/node/" + nodeType + "/" + nodeId;
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
 }

@@ -29,6 +29,8 @@ public class ApplicationStarter {
 		*/
 		
 		//	oc.addStaticRoute("route2", "10.10.1.0/24", "1.1.1.1");
-		oc.removeStaticRoute("route2");
+		//	oc.removeStaticRoute("route2");
+		
+		System.out.println(oc.getOpenFlowTableStatistics("00:00:00:00:00:00:00:01"));
 	}
 }
