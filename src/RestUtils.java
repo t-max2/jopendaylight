@@ -96,6 +96,11 @@ public class RestUtils {
 	//	--------------------
 	
 	public static String doPost(String urlString, String parameterString) throws MalformedURLException, IOException, RuntimeException{
+		return doPost(urlString, parameterString, null, null);
+	}
+	
+	//	base Post method
+	public static String doPost(String urlString, String paraString, String account, String password) throws MalformedURLException, IOException, RuntimeException{
 		URL url;
 		OutputStream os;
 		//	String parameterString;
@@ -103,15 +108,24 @@ public class RestUtils {
 		
 		url = new URL(urlString);
 		conn = (HttpURLConnection) url.openConnection();
-		
-		conn.setDoOutput(true);
 		conn.setRequestMethod("POST");
-		conn.setRequestProperty("Accept", "application/json");
 		
-		os = conn.getOutputStream();
-		os.write(parameterString.getBytes());
-		os.flush();
+		//	handle HTTP Basic authentication if any
+		if(account != null && password != null){
+			String encoding = Base64.encodeBase64String((account + ":" + password).getBytes());
+			conn.setRequestProperty("Authorization", "Basic " + encoding);
+		}
+
+		if(paraString != null && !paraString.equals("")){
+			conn.setDoOutput(true);
+			conn.setRequestProperty("Accept", "application/json");
+			
+			os = conn.getOutputStream();
+			os.write(paraString.getBytes());
+			os.flush();
+		}
 		
+		//	FIXME: maybe more status codes?
 		if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
 			String temp;
 			String result = "";
@@ -245,8 +259,10 @@ public class RestUtils {
 		
 		//	return content
 		if(responseEntity != null){
+			int statusCode = response.getStatusLine().getStatusCode();
+			
 			//	FIXME: add more HTTP OK codes if needed
-			if(response.getStatusLine().getStatusCode() == 201){
+			if(statusCode == 200 || statusCode == 201){
 				return EntityUtils.toString(responseEntity);
 			}
 			else{
