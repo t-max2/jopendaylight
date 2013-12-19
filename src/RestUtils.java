@@ -109,6 +109,7 @@ public class RestUtils {
 		url = new URL(urlString);
 		conn = (HttpURLConnection) url.openConnection();
 		conn.setRequestMethod("POST");
+		conn.setRequestProperty("Accept", "application/json");
 		
 		//	handle HTTP Basic authentication if any
 		if(account != null && password != null){
@@ -118,7 +119,7 @@ public class RestUtils {
 
 		if(paraString != null && !paraString.equals("")){
 			conn.setDoOutput(true);
-			conn.setRequestProperty("Accept", "application/json");
+			conn.setRequestProperty("Content-Type", "application/json");
 			
 			os = conn.getOutputStream();
 			os.write(paraString.getBytes());
@@ -126,7 +127,8 @@ public class RestUtils {
 		}
 		
 		//	FIXME: maybe more status codes?
-		if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
+		if(conn.getResponseCode() == HttpURLConnection.HTTP_OK || 
+				conn.getResponseCode() == HttpURLConnection.HTTP_CREATED){
 			String temp;
 			String result = "";
 			BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -180,7 +182,7 @@ public class RestUtils {
 		//	return content
 		if(responseEntity != null){
 			//	FIXME: add more HTTP OK codes if needed
-			if(response.getStatusLine().getStatusCode() == 204){
+			if(response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT){
 				return EntityUtils.toString(responseEntity);
 			}
 			else{
@@ -262,7 +264,8 @@ public class RestUtils {
 			int statusCode = response.getStatusLine().getStatusCode();
 			
 			//	FIXME: add more HTTP OK codes if needed
-			if(statusCode == 200 || statusCode == 201){
+			if(statusCode == HttpURLConnection.HTTP_OK || 
+					statusCode == HttpURLConnection.HTTP_CREATED){
 				return EntityUtils.toString(responseEntity);
 			}
 			else{

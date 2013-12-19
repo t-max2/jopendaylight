@@ -40,6 +40,10 @@ public class OpendaylightClient {
 	public OpendaylightClient(String ip){
 		this(ip, defaultRestPort, defaultUserAccount, defaultUserPassword, defaultContainerName);
 	}
+	//	constructor with account and password
+	public OpendaylightClient(String account, String password){
+		this(defaultControllerIp, defaultRestPort, account, password, defaultContainerName);
+	}
 
 	//	base constructor
 	public OpendaylightClient(String ip, String port, String account, String password, String container){
@@ -98,8 +102,8 @@ public class OpendaylightClient {
 
 		paraMap.put("status", "Success");
 		paraMap.put("name", name);
-		paraMap.put("srcNodeConnector", type + "|" + srcPort + "@" + type + "|" + srcId);
-		paraMap.put("dstNodeConnector", type + "|" + dstPort + "@" + type + "|" + dstId);
+		paraMap.put("srcNodeConnector", new SimpleNodeConnector(type, srcId, srcPort).toString());
+		paraMap.put("dstNodeConnector", new SimpleNodeConnector(type, dstId, dstPort).toString());
 		
 		return addUserLink(containerName, name, paraMap);
 	}
@@ -597,5 +601,126 @@ public class OpendaylightClient {
 	public JsonNode getTableStatistics(String containerName, String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
 		String mountPoint = "/controller/nb/v2/statistics/" + containerName + "/table/node/" + nodeType + "/" + nodeId;
 		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	/*
+	 * Title:    Subnets REST APIs
+	 * Module:   org.opendaylight.controller.subnets.northbound.SubnetsNorthbound
+	 * This class provides REST APIs to manage subnets.
+	 * API page: http://goo.gl/uNMK9X
+	 */
+	
+	//	List all the subnets in a given container
+	public JsonNode listSubnets() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return listSubnets(currentContainerName);
+	}
+	
+	//	base method
+	//	List all the subnets in a given container
+	public JsonNode listSubnets(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/subnetservice/" + containerName + "/subnets";
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	List the configuration of a subnet in a given container
+	public JsonNode listSubnet(String subnetName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return listSubnet(currentContainerName, subnetName);
+	}
+	
+	//	base method
+	//	List the configuration of a subnet in a given container
+	public JsonNode listSubnet(String containerName, String subnetName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/subnetservice/" + containerName + "/subnet/" + subnetName;
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Add a subnet into the specified container context, node connectors are optional
+	//	use SimpleNodeConnector::toString() to generate nodeConnectors
+	//	If add success, return an empty String
+	public String addSubnet(String subnetName, String subnetAddress) throws ClientProtocolException, IOException{
+		return addSubnet(currentContainerName, subnetName, subnetAddress, null);
+	}
+	
+	//	Add a subnet into the specified container context, node connectors are optional
+	//	use SimpleNodeConnector::toString() to generate nodeConnectors
+	//	If add success, return an empty String
+	public String addSubnet(String subnetName, String subnetAddress, List<String> nodeConnectors) throws ClientProtocolException, IOException{
+		return addSubnet(currentContainerName, subnetName, subnetAddress, nodeConnectors);
+	}
+	
+	//	base method
+	//	Add a subnet into the specified container context, node connectors are optional
+	//	use SimpleNodeConnector::toString() to generate nodeConnectors
+	//	If add success, return an empty String
+	public String addSubnet(String containerName, String subnetName, String subnetAddress, List<String> nodeConnectors) throws ClientProtocolException, IOException{
+		String paraString;
+		Map<String, Object> request;
+		String mountPoint = "/controller/nb/v2/subnetservice/" + containerName + "/subnet/" + subnetName;
+		
+		request = new HashMap<String, Object>();
+		request.put("name", subnetName);
+		request.put("subnet", subnetAddress);
+		
+		//	node connectors are optional
+		if(nodeConnectors != null){
+			request.put("nodeConnectors", nodeConnectors);
+		}
+		else{
+			request.put("nodeConnectors", new ArrayList<String>());
+		}
+		
+		
+		paraString = mapper.writeValueAsString(request);	//	Map -> JSON String
+		return RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
+	
+	//	Delete a subnet from the specified container context
+	//	If delete success, return null
+	public String removeSubnet(String subnetName) throws ClientProtocolException, IOException{
+		return removeSubnet(currentContainerName, subnetName);
+	}
+	
+	//	base method
+	//	Delete a subnet from the specified container context
+	//	If delete success, return null
+	public String removeSubnet(String containerName, String subnetName) throws ClientProtocolException, IOException{
+		String mountPoint = "/controller/nb/v2/subnetservice/" + containerName + "/subnet/" + subnetName;
+		return RestUtils.doDelete(requestPrefix + mountPoint, userAccount, userPassword);
+	}
+	
+	//	Modify a subnet. Replace the existing subnet with the new specified one. 
+	//	For now only port list modification is allowed. 
+	//	If the respective subnet configuration does not exist 
+	//	this call is equivalent to a subnet creation.
+	//	If modify success, return String "Success"
+	public String modifySubnet(String subnetName, String subnetAddress, List<String> nodeConnectors) throws MalformedURLException, IOException, RuntimeException{
+		return modifySubnet(currentContainerName, subnetName, subnetAddress, nodeConnectors);
+	}
+	
+	//	base method
+	//	Modify a subnet. Replace the existing subnet with the new specified one. 
+	//	For now only port list modification is allowed. 
+	//	If the respective subnet configuration does not exist 
+	//	this call is equivalent to a subnet creation.
+	//	If modify success, return String "Success"
+	public String modifySubnet(String containerName, String subnetName, String subnetAddress, List<String> nodeConnectors) throws MalformedURLException, IOException, RuntimeException{
+		String paraString;
+		Map<String, Object> request;
+		String mountPoint = "/controller/nb/v2/subnetservice/" + containerName + "/subnet/" + subnetName;
+		
+		request = new HashMap<String, Object>();
+		request.put("name", subnetName);
+		request.put("subnet", subnetAddress);
+		
+		//	node connectors are optional
+		if(nodeConnectors != null){
+			request.put("nodeConnectors", nodeConnectors);
+		}
+		else{
+			request.put("nodeConnectors", new ArrayList<String>());
+		}
+		
+		paraString = mapper.writeValueAsString(request);	//	Map -> JSON String
+		return RestUtils.doPost(requestPrefix + mountPoint, paraString, userAccount, userPassword);
 	}
 }
