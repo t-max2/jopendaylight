@@ -17,59 +17,21 @@ public class ApplicationStarter {
 		//	TODO
 		OpendaylightClient oc = new OpendaylightClient();
 
-		//	System.out.println(oc.getStaticRoute("route1"));
 		/*
-		Map<String, String> para;
-		para = new HashMap<String, String>();
-		
-		para.put("name", "route1");
-		para.put("prefix", "10.10.1.0/24");
-		para.put("nextHop", "1.1.1.1");
-		
-		System.out.println(oc.addStaticRoute("route1", para));
+		oc.addOpenFlowNodeConnectorProperty("00:00:00:00:00:00:00:03", 2, "bandwidth", "1");
+		//	oc.addOpenFlowNodeConnectorBandwidth("00:00:00:00:00:00:00:03", 1, 120000000000L);
+		System.out.println(oc.getOpenFlowNodeConnectors("00:00:00:00:00:00:00:03"));
 		*/
 		
-		//	oc.addStaticRoute("route2", "10.10.1.0/24", "1.1.1.1");
-		//	oc.removeStaticRoute("route2");
+		//	oc.deleteOpenFlowNodeProperty("00:00:00:00:00:00:00:04", "name");
 		
-		//	System.out.println(oc.getOpenFlowTableStatistics("00:00:00:00:00:00:00:01"));
-		/*
-		JsonNode topo = oc.getTopology();
-		JsonNode edgeProperties = topo.get("edgeProperties");
+		oc.deleteOpenFlowNodeConnectorBandwidth("00:00:00:00:00:00:00:03", 2);
+		//	oc.saveSwitchConfig();
 		
-		//	System.out.println(edgeProperties.toString());
+		System.out.println(oc.getOpenFlowNodeConnectors("00:00:00:00:00:00:00:03"));
+		//	System.out.println(oc.getNodes());
+		//	oc.addOpenFlowNodeProperty("00:00:00:00:00:00:00:03", "description", "test1515");
 		
-		for(JsonNode edgePropertie: edgeProperties){
-			System.out.println(edgePropertie.get("edge").toString());
-		}
-		*/
-		
-		//	System.out.println(oc.listSubnets());
-		
-		//	System.out.println(oc.getTopology());
-		//	oc.addOpenFlowUserLink("linkTest", "00:00:00:00:00:00:00:03", 2, "00:00:00:00:00:00:00:04", 1);
-		/*
-		ArrayList<String> nodeConnectors = new ArrayList<String>();
-		nodeConnectors.add("OF|2@OF|00:00:00:00:00:00:00:03");
-		nodeConnectors.add("OF|1@OF|00:00:00:00:00:00:00:04");
-		
-		System.out.println(oc.addSubnet("sn1", "10.0.0.1/8", nodeConnectors));
-		
-		System.out.println(oc.listSubnets());
-		*/
-		/*
-		ArrayList<String> nodeConnectors = new ArrayList<String>();
-		nodeConnectors.add(new SimpleNodeConnector("00:00:00:00:00:00:00:03", 2).toString());
-		nodeConnectors.add(new SimpleNodeConnector("00:00:00:00:00:00:00:04", 1).toString());
-		*/
-		/*
-		System.out.println(oc.modifySubnet("sn1", "10.0.0.1/8", null));
-		
-		System.out.println(oc.listSubnets());
-		*/
-		
-		//	System.out.println(oc.removeSubnet("sn1"));
-		//	System.out.println(oc.toggleOpenFlowFlowEntry("00:00:00:00:00:00:00:03", "flow1"));
 		
 	}
 }

@@ -723,4 +723,156 @@ public class OpendaylightClient {
 		paraString = mapper.writeValueAsString(request);	//	Map -> JSON String
 		return RestUtils.doPost(requestPrefix + mountPoint, paraString, userAccount, userPassword);
 	}
+	
+	//	
+	/*
+	 * Title:    Switch Manager REST APIs
+	 * Module:   org.opendaylight.controller.switchmanager.northbound.SwitchNorthbound
+	 * The class provides Northbound REST APIs to access the nodes, 
+	 * node connectors and their properties.
+	 * API page: http://goo.gl/n7efGX
+	 */
+	
+	//	Retrieve a list of all the nodes and their properties in the network
+	public JsonNode getNodes() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getNodes(currentContainerName);
+	}
+	
+	//	base method
+	//	Retrieve a list of all the nodes and their properties in the network
+	public JsonNode getNodes(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/nodes";
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Save the current switch configurations
+	//	If operate sucess, return an empty String
+	public String saveSwitchConfig() throws MalformedURLException, IOException, RuntimeException{
+		return saveSwitchConfig(this.currentContainerName);
+	}
+	
+	//	base method
+	//	Save the current switch configurations
+	//	If operate sucess, return an empty String
+	public String saveSwitchConfig(String containerName) throws MalformedURLException, IOException, RuntimeException{
+		String paraString = "";
+		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/save";
+		return RestUtils.doPost(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
+	
+	//	Retrieve a list of all the nodeconnectors and their properties in a given node
+	public JsonNode getOpenFlowNodeConnectors(String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getNodeConnectors(TYPE_OPENFLOW, nodeId);
+	}
+	
+	//	Retrieve a list of all the nodeconnectors and their properties in a given node
+	public JsonNode getNodeConnectors(String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getNodeConnectors(this.currentContainerName, nodeType, nodeId);
+	}
+	
+	//	base method
+	//	Retrieve a list of all the nodeconnectors and their properties in a given node
+	public JsonNode getNodeConnectors(String containerName, String nodeType, String nodeId) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/node/" + nodeType + "/" + nodeId;
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Delete a property of a node
+	//	If delete success, return null
+	public String deleteOpenFlowNodeProperty(String nodeId, String propertyName) throws ClientProtocolException, IOException{
+		return deleteNodeProperty(TYPE_OPENFLOW, nodeId, propertyName);
+	}
+	
+	//	Delete a property of a node
+	//	If delete success, return null
+	public String deleteNodeProperty(String nodeType, String nodeId, String propertyName) throws ClientProtocolException, IOException{
+		return deleteNodeProperty(this.currentContainerName, nodeType, nodeId, propertyName);
+	}
+	
+	//	base method
+	//	Delete a property of a node
+	//	If delete success, return null
+	public String deleteNodeProperty(String containerName, String nodeType, String nodeId, String propertyName) throws ClientProtocolException, IOException{
+		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/node/" + nodeType + "/" + nodeId + "/property/" + propertyName;
+		return RestUtils.doDelete(requestPrefix + mountPoint, userAccount, userPassword);
+	}
+	
+	//	Add a Description, Tier and Forwarding mode property to a node. 
+	//	This method returns a non-successful response if a node by that name already exists.
+	//	If add success, return an empty String
+	public String addOpenFlowNodeProperty(String nodeId, String propertyName, String propertyValue) throws ClientProtocolException, IOException{
+		return addNodeProperty(TYPE_OPENFLOW, nodeId, propertyName, propertyValue);
+	}
+	
+	//	Add a Description, Tier and Forwarding mode property to a node. 
+	//	This method returns a non-successful response if a node by that name already exists.
+	//	If add success, return an empty String
+	public String addNodeProperty(String nodeType, String nodeId, String propertyName, String propertyValue) throws ClientProtocolException, IOException{
+		return addNodeProperty(this.currentContainerName, nodeType, nodeId, propertyName, propertyValue);
+	}
+	
+	//	base method
+	//	Add a Description, Tier and Forwarding mode property to a node. 
+	//	This method returns a non-successful response if a node by that name already exists.
+	//	If add success, return an empty String
+	public String addNodeProperty(String containerName, String nodeType, String nodeId, String propertyName, String propertyValue) throws ClientProtocolException, IOException{
+		String paraString = "";
+		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/node/" + nodeType + "/" + nodeId + "/property/" + propertyName + "/" + propertyValue;
+		return RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
+	
+	//	Delete a property of a node connector
+	//	The only property that can be deleted is bandwidth
+	public String deleteOpenFlowNodeConnectorBandwidth(String nodeId, int nodeConnectorId) throws ClientProtocolException, IOException{
+		return deleteNodeConnectorProperty(TYPE_OPENFLOW, nodeId, TYPE_OPENFLOW, nodeConnectorId, "bandwidth");
+	}
+	
+	//	Delete a property of a node connector
+	public String deleteOpenFlowNodeConnectorProperty(String nodeId, int nodeConnectorId, String propertyName) throws ClientProtocolException, IOException{
+		return deleteNodeConnectorProperty(TYPE_OPENFLOW, nodeId, TYPE_OPENFLOW, nodeConnectorId, propertyName);
+	}
+	
+	//	Delete a property of a node connector
+	public String deleteNodeConnectorProperty(String nodeType, String nodeId, String nodeConnectorType, int nodeConnectorId, String propertyName) throws ClientProtocolException, IOException{
+		return deleteNodeConnectorProperty(this.currentContainerName, nodeType, nodeId, nodeConnectorType, nodeConnectorId, propertyName);
+	}
+	
+	//	base method
+	//	Delete a property of a node connector
+	public String deleteNodeConnectorProperty(String containerName, String nodeType, String nodeId, String nodeConnectorType, int nodeConnectorId, String propertyName) throws ClientProtocolException, IOException{
+		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/nodeconnector/" + nodeType + "/" + nodeId + "/" + nodeConnectorType + "/" + nodeConnectorId + "/property/" + propertyName;
+		return RestUtils.doDelete(requestPrefix + mountPoint, userAccount, userPassword);
+	}
+	
+	//	Add node-connector property to a node connector. 
+	//	This method returns a non-successful response if a node connector 
+	//	by the given name already exists.
+	//	The only property that can be configured is bandwidth
+	public String addOpenFlowNodeConnectorBandwidth(String nodeId, int nodeConnectorId, long bandwidthValue) throws ClientProtocolException, IOException{
+		return addOpenFlowNodeConnectorProperty(nodeId, nodeConnectorId, "bandwidth", Long.toString(bandwidthValue));
+	}
+	
+	//	Add node-connector property to a node connector. 
+	//	This method returns a non-successful response if a node connector 
+	//	by the given name already exists.
+	public String addOpenFlowNodeConnectorProperty(String nodeId, int nodeConnectorId, String propertyName, String propertyValue) throws ClientProtocolException, IOException{
+		return addNodeConnectorProperty(TYPE_OPENFLOW, nodeId, TYPE_OPENFLOW, nodeConnectorId, propertyName, propertyValue);
+	}
+	
+	//	Add node-connector property to a node connector. 
+	//	This method returns a non-successful response if a node connector 
+	//	by the given name already exists.
+	public String addNodeConnectorProperty(String nodeType, String nodeId, String nodeConnectorType, int nodeConnectorId, String propertyName, String propertyValue) throws ClientProtocolException, IOException{
+		return addNodeConnectorProperty(this.currentContainerName, nodeType, nodeId, nodeConnectorType, nodeConnectorId, propertyName, propertyValue);
+	}
+	
+	//	base method
+	//	Add node-connector property to a node connector. 
+	//	This method returns a non-successful response if a node connector 
+	//	by the given name already exists.
+	public String addNodeConnectorProperty(String containerName, String nodeType, String nodeId, String nodeConnectorType, int nodeConnectorId, String propertyName, String propertyValue) throws ClientProtocolException, IOException{
+		String paraString = "";
+		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/nodeconnector/" + nodeType + "/" + nodeId + "/" + nodeConnectorType + "/" + nodeConnectorId + "/property/" + propertyName + "/" + propertyValue;
+		return RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
 }

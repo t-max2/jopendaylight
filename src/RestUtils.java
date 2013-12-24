@@ -182,7 +182,8 @@ public class RestUtils {
 		//	return content
 		if(responseEntity != null){
 			//	FIXME: add more HTTP OK codes if needed
-			if(response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT){
+			if(response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_NO_CONTENT
+					|| response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK){
 				return EntityUtils.toString(responseEntity);
 			}
 			else{
