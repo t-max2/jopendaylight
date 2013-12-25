@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.http.client.ClientProtocolException;
 
@@ -724,7 +725,6 @@ public class OpendaylightClient {
 		return RestUtils.doPost(requestPrefix + mountPoint, paraString, userAccount, userPassword);
 	}
 	
-	//	
 	/*
 	 * Title:    Switch Manager REST APIs
 	 * Module:   org.opendaylight.controller.switchmanager.northbound.SwitchNorthbound
@@ -874,5 +874,159 @@ public class OpendaylightClient {
 		String paraString = "";
 		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/nodeconnector/" + nodeType + "/" + nodeId + "/" + nodeConnectorType + "/" + nodeConnectorId + "/property/" + propertyName + "/" + propertyValue;
 		return RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
+	
+	/*
+	 * Title:    User Manager REST APIs
+	 * Module:   org.opendaylight.controller.usermanager.northbound.UserManagerNorthbound
+	 * This class provides REST APIs to manage users. 
+	 * This API will only be availalbe via HTTPS. 
+	 * API page: http://goo.gl/uGL3mN
+	 */
+	
+	//	TODO: implement this part when wanna deal with HTTPs
+	
+	/*
+	 * Title:    Container Manager REST APIs
+	 * Module:   org.opendaylight.controller.containermanager.northbound.ContainerManagerNorthbound
+	 * Container Manager Northbound API 
+	 * API page: http://goo.gl/Zs1wUF
+	 */
+	
+	//	Get all the containers configured in the system
+	public JsonNode viewAllContainers() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/containermanager/containers";
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Get the container configuration for container name requested
+	public JsonNode viewContainer(String container) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + container;
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Create a container
+	public String createContainer(String containerName) throws ClientProtocolException, IOException{
+		return createContainer(containerName, -1, null);
+	}
+	
+	//	Create a container
+	public String createContainer(String containerName, int staticVlan) throws ClientProtocolException, IOException{
+		return createContainer(containerName, staticVlan, null);
+	}
+	
+	//	Create a container
+	public String createContainer(String containerName, int staticVlan, List<String> nodeConnectors) throws ClientProtocolException, IOException{
+		Map<String, Object> paraMap;
+		paraMap = new TreeMap<String, Object>();
+		
+		paraMap.put("container", containerName);
+	
+		//	Static Vlan Value must be between 1 and 4095
+		if(staticVlan >= 1 && staticVlan <= 4095){
+			paraMap.put("staticVlan", staticVlan);
+		}
+		
+		if(nodeConnectors != null){
+			paraMap.put("nodeConnectors", nodeConnectors);
+		}
+
+		return createContainer(containerName, paraMap);
+	}
+	
+	//	base method
+	//	Create a container
+	public String createContainer(String containerName, Map<String, Object> paraMap) throws ClientProtocolException, IOException{
+		String paraString;
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName;
+		
+		paraString = mapper.writeValueAsString(paraMap);	//	Map -> JSON String
+		return RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
+	
+	//	Delete a container
+	public String removeContainer(String containerName) throws ClientProtocolException, IOException{
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName;
+		return RestUtils.doDelete(requestPrefix + mountPoint, userAccount, userPassword);
+	}
+	
+	//	Get all the flowspec in a given container
+	public JsonNode viewContainerFlowSpecs(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName + "/flowspecs";
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Add a node connector to a container
+	public String addNodeConnector(String containerName, String nodeConnector) throws ClientProtocolException, IOException{
+		List<String> nodeConnectors = new ArrayList<String>();
+		nodeConnectors.add(nodeConnector);
+		
+		return addNodeConnectors(containerName, nodeConnectors);
+	}
+	
+	//	base method
+	//	Add node connectors to a container
+	public String addNodeConnectors(String containerName, List<String> nodeConnectors) throws ClientProtocolException, IOException{
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName + "/nodeconnector";
+		
+		String paraString;
+		Map<String, Object> paraMap;
+		
+		paraMap = new TreeMap<String, Object>();
+		paraMap.put("nodeConnectors", nodeConnectors);
+		
+		paraString = mapper.writeValueAsString(paraMap);	//	Map -> JSON String
+		return RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
+	
+	//	Remove a node connector from a container
+	public String removeNodeConnector(String containerName, String nodeConnector) throws ClientProtocolException, IOException{
+		List<String> nodeConnectors = new ArrayList<String>();
+		nodeConnectors.add(nodeConnector);
+		
+		return removeNodeConnectors(containerName, nodeConnectors);
+	}
+	
+	//	base method
+	//	Remove node connectors from a container
+	public String removeNodeConnectors(String containerName, List<String> nodeConnectors) throws ClientProtocolException, IOException{
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName + "/nodeconnector";
+		
+		String paraString;
+		Map<String, Object> paraMap;
+		
+		paraMap = new TreeMap<String, Object>();
+		paraMap.put("nodeConnectors", nodeConnectors);
+		
+		paraString = mapper.writeValueAsString(paraMap);	//	Map -> JSON String
+		
+		return RestUtils.doDelete(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
+	
+	//	TODO: test it
+	//	Get flowspec within a given container
+	public JsonNode viewContainerFlowSpec(String containerName, String flowspecName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName + "/flowspec/" + flowspecName;
+		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+	}
+	
+	//	Add flowspec to a container
+	public String createFlowSpec(String containerName, String flowspecName, Map<String, String> paraMap) throws ClientProtocolException, IOException{
+		String paraString;
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName + "/flowspec/" + flowspecName;
+		
+		//	name NOT exists or NOT the same
+		if(paraMap.get("name") == null || !paraMap.get("name").equals(flowspecName)){
+			paraMap.put("name", flowspecName);
+		}
+		
+		paraString = mapper.writeValueAsString(paraMap);	//	Map -> JSON String
+		return RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword);
+	}
+	
+	//	Remove flowspec from a container
+	public String removeFlowSpec(String containerName, String flowspecName) throws ClientProtocolException, IOException{
+		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName + "/flowspec/" + flowspecName;
+		return RestUtils.doDelete(requestPrefix + mountPoint, userAccount, userPassword);
 	}
 }

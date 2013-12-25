@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,20 +19,47 @@ public class ApplicationStarter {
 		OpendaylightClient oc = new OpendaylightClient();
 
 		/*
-		oc.addOpenFlowNodeConnectorProperty("00:00:00:00:00:00:00:03", 2, "bandwidth", "1");
-		//	oc.addOpenFlowNodeConnectorBandwidth("00:00:00:00:00:00:00:03", 1, 120000000000L);
-		System.out.println(oc.getOpenFlowNodeConnectors("00:00:00:00:00:00:00:03"));
+		oc.removeContainer("red");
+		oc.removeContainer("blue");
+		oc.removeContainer("banana");
+		
+		System.out.println(oc.viewAllContainers());
+		*/
+		/*
+		
+		System.out.println(oc.viewContainerFlowSpecs("banana"));
 		*/
 		
-		//	oc.deleteOpenFlowNodeProperty("00:00:00:00:00:00:00:04", "name");
 		
-		oc.deleteOpenFlowNodeConnectorBandwidth("00:00:00:00:00:00:00:03", 2);
-		//	oc.saveSwitchConfig();
+		//	System.out.println(oc.viewAllContainers());
 		
-		System.out.println(oc.getOpenFlowNodeConnectors("00:00:00:00:00:00:00:03"));
-		//	System.out.println(oc.getNodes());
-		//	oc.addOpenFlowNodeProperty("00:00:00:00:00:00:00:03", "description", "test1515");
+		//	oc.createContainer("banana");
+		
+		/*
+		List<String> ncs = new ArrayList<String>();
+		ncs.add(new SimpleNodeConnector("00:00:00:00:00:00:00:02", 3).toString());
+		ncs.add(new SimpleNodeConnector("00:00:00:00:00:00:00:04", 4).toString());
+		
+		oc.addNodeConnectors("default", ncs);
+		System.out.println(oc.viewContainer("default"));
+		*/
+		
+		//	oc.removeContainer("banana");
+		/*
+		Map<String, String> paraMap = new TreeMap<String, String>();
+		paraMap.put("name", "httpEx");
+		paraMap.put("nwSrc", "10.0.0.1");
+		paraMap.put("nwDst", "10.0.0.2");
 		
 		
+		oc.createFlowSpec("banana", "http", paraMap);
+		System.out.println(oc.viewContainerFlowSpec("banana", "http"));
+		*/
+		/*
+		oc.removeFlowSpec("banana", "http");
+		System.out.println(oc.viewContainer("banana"));
+		*/
+		
+		oc.removeContainer("banana");
 	}
 }

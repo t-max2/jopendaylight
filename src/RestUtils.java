@@ -197,6 +197,12 @@ public class RestUtils {
 	
 	//	HTTP DELTE with String entity 
 	public static String doDelete(String urlString, String paraString) throws ClientProtocolException, IOException{
+		return doDelete(urlString, paraString, null, null);
+	}
+	
+	//	base method
+	//	HTTP DELTE with String entity 
+	public static String doDelete(String urlString, String paraString, String account, String password) throws ClientProtocolException, IOException{
 		HttpClient hc;
 		HttpResponse response;
 		HttpEntity responseEntity;
@@ -208,9 +214,17 @@ public class RestUtils {
 		
 		//	set request
 		paraStringEntity = new StringEntity(paraString);
+		paraStringEntity.setContentType("application/json");
 		
 		deleteRequest = new HttpDeleteWithEntity(urlString);
+		deleteRequest.setHeader("Accept", "application/json");
 		deleteRequest.setEntity(paraStringEntity);
+		
+		//	handle HTTP Basic authentication if any
+		if(account != null && password != null){
+			String encoding = Base64.encodeBase64String((account + ":" + password).getBytes());
+			deleteRequest.setHeader("Authorization", "Basic " + encoding);
+		}
 		
 		//	get response
 		response = hc.execute(deleteRequest);
