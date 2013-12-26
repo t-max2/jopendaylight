@@ -734,13 +734,13 @@ public class OpendaylightClient {
 	 */
 	
 	//	Retrieve a list of all the nodes and their properties in the network
-	public JsonNode getNodes() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
-		return getNodes(currentContainerName);
+	public JsonNode getNodePropertiesOfContainer() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getNodePropertiesOfContainer(currentContainerName);
 	}
 	
 	//	base method
 	//	Retrieve a list of all the nodes and their properties in the network
-	public JsonNode getNodes(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+	public JsonNode getNodePropertiesOfContainer(String containerName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
 		String mountPoint = "/controller/nb/v2/switchmanager/" + containerName + "/nodes";
 		return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
 	}
@@ -884,7 +884,7 @@ public class OpendaylightClient {
 	 * API page: http://goo.gl/uGL3mN
 	 */
 	
-	//	TODO: implement this part when wanna deal with HTTPs
+	//	TODO: implement User Manager REST APIs when wanna deal with HTTPs
 	
 	/*
 	 * Title:    Container Manager REST APIs
@@ -1003,7 +1003,6 @@ public class OpendaylightClient {
 		return RestUtils.doDelete(requestPrefix + mountPoint, paraString, userAccount, userPassword);
 	}
 	
-	//	TODO: test it
 	//	Get flowspec within a given container
 	public JsonNode viewContainerFlowSpec(String containerName, String flowspecName) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
 		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName + "/flowspec/" + flowspecName;
@@ -1028,5 +1027,74 @@ public class OpendaylightClient {
 	public String removeFlowSpec(String containerName, String flowspecName) throws ClientProtocolException, IOException{
 		String mountPoint = "/controller/nb/v2/containermanager/container/" + containerName + "/flowspec/" + flowspecName;
 		return RestUtils.doDelete(requestPrefix + mountPoint, userAccount, userPassword);
+	}
+	
+	//	TODO: test connect(...) and disconnect(...) when migrate switches to other controller
+	/*
+	 * Title:    Connection Manager REST APIs
+	 * Module:   org.opendaylight.controller.connectionmanager.northbound.ConnectionManagerNorthbound
+	 * Connection Manager Northbound APIs
+	 * API page: http://goo.gl/S0Nt7Z
+	 */
+	
+	//	Retrieve a list of all the nodes connected to a given controller in the cluster.
+	public JsonNode getNodesOfController() throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		return getNodesOfController(null);
+	}
+	
+	//	base method
+	//	Retrieve a list of all the nodes connected to a given controller in the cluster.
+	public JsonNode getNodesOfController(String controllerAddress) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException{
+		String mountPoint = "/controller/nb/v2/connectionmanager/nodes";
+		
+		if(controllerAddress == null || controllerAddress.equals("")){
+			//	no controllerAddress
+			return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, userAccount, userPassword));
+		}
+		else{
+			Map<String, String> paraMap;
+			paraMap = new TreeMap<String, String>();
+			paraMap.put("controller", controllerAddress);
+			
+			return mapper.readTree(RestUtils.doGet(requestPrefix + mountPoint, paraMap, userAccount, userPassword));
+		}
+	}
+	
+	//	Disconnect an existing Connection.
+	public String disconnectOpenFlowNode(String nodeId) throws ClientProtocolException, IOException{
+		return disconnect(TYPE_OPENFLOW, nodeId);
+	}
+	
+	//	base method
+	//	Disconnect an existing Connection.
+	public String disconnect(String nodeType, String nodeId) throws ClientProtocolException, IOException{
+		String mountPoint = "/controller/nb/v2/connectionmanager/node/" + nodeType + "/" + nodeId;
+		return RestUtils.doDelete(requestPrefix + mountPoint, userAccount, userPassword);
+	}
+	
+	//	If a Network Configuration Service needs a Management Connection 
+	//	and if the Node Type is unknown, 
+	//	use this REST api to connect to the management session.
+	public JsonNode connect(String nodeId, String ipAddress, int port) throws JsonProcessingException, ClientProtocolException, IOException{
+		String paraString = "";
+		String mountPoint = "/controller/nb/v2/connectionmanager/node/" + nodeId+ "/address/" + ipAddress+ "/port/" + port;
+		return mapper.readTree(RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword));
+	}
+	
+	//	If a Network Configuration Service needs a Management Connection, 
+	//	and if the node Type is known, 
+	//	the user can choose to use this REST api to connect to the management session.
+	public JsonNode connectOpenFlowNode(String nodeId, String ipAddress, int port) throws JsonProcessingException, ClientProtocolException, IOException{
+		return connect(TYPE_OPENFLOW, nodeId, ipAddress, port);
+	}
+	
+	//	base method
+	//	If a Network Configuration Service needs a Management Connection, 
+	//	and if the node Type is known, 
+	//	the user can choose to use this REST api to connect to the management session.
+	public JsonNode connect(String nodeType, String nodeId, String ipAddress, int port) throws JsonProcessingException, ClientProtocolException, IOException{
+		String paraString = "";
+		String mountPoint = "/controller/nb/v2/connectionmanager/node/" + nodeType + "/" + nodeId + "/address/" + ipAddress + "/port/" + port;
+		return mapper.readTree(RestUtils.doPut(requestPrefix + mountPoint, paraString, userAccount, userPassword));
 	}
 }

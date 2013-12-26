@@ -13,53 +13,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ApplicationStarter {
-	public static void main(String[] args)
-			throws JsonProcessingException, MalformedURLException, IOException, RuntimeException {
+	public static void main(String[] args) throws JsonProcessingException, MalformedURLException, IOException, RuntimeException {
 		//	TODO
+		String n3 = "00:00:00:00:00:00:00:03";
+		String n4 = "00:00:00:00:00:00:00:04";
 		OpendaylightClient oc = new OpendaylightClient();
 
 		/*
-		oc.removeContainer("red");
-		oc.removeContainer("blue");
+		oc.createContainer("banana");
+		
+		oc.addNodeConnector("banana", new SimpleNodeConnector(n3, 1).toString());
+		oc.addNodeConnector("banana", new SimpleNodeConnector(n3, 2).toString());
+		oc.addNodeConnector("banana", new SimpleNodeConnector(n4, 1).toString());
+		oc.addNodeConnector("banana", new SimpleNodeConnector(n4, 2).toString());
+		*/
+		/*
 		oc.removeContainer("banana");
-		
-		System.out.println(oc.viewAllContainers());
+		oc.createContainer("banana");
+		System.out.println(oc.getNodePropertiesOfContainer("banana"));
 		*/
-		/*
-		
-		System.out.println(oc.viewContainerFlowSpecs("banana"));
-		*/
-		
-		
-		//	System.out.println(oc.viewAllContainers());
-		
-		//	oc.createContainer("banana");
-		
-		/*
-		List<String> ncs = new ArrayList<String>();
-		ncs.add(new SimpleNodeConnector("00:00:00:00:00:00:00:02", 3).toString());
-		ncs.add(new SimpleNodeConnector("00:00:00:00:00:00:00:04", 4).toString());
-		
-		oc.addNodeConnectors("default", ncs);
-		System.out.println(oc.viewContainer("default"));
-		*/
-		
-		//	oc.removeContainer("banana");
-		/*
-		Map<String, String> paraMap = new TreeMap<String, String>();
-		paraMap.put("name", "httpEx");
-		paraMap.put("nwSrc", "10.0.0.1");
-		paraMap.put("nwDst", "10.0.0.2");
-		
-		
-		oc.createFlowSpec("banana", "http", paraMap);
-		System.out.println(oc.viewContainerFlowSpec("banana", "http"));
-		*/
-		/*
-		oc.removeFlowSpec("banana", "http");
-		System.out.println(oc.viewContainer("banana"));
-		*/
-		
-		oc.removeContainer("banana");
 	}
 }

@@ -69,6 +69,10 @@ public class RestUtils {
 		return doGet(urlString + "?" + prepareGetParameterString(paraMap));
 	}
 	
+	public static String doGet(String urlString, Map<String, String> paraMap, String account, String password) throws MalformedURLException, IOException, RuntimeException{
+		return doGet(urlString + "?" + prepareGetParameterString(paraMap), account, password);
+	}
+	
 	private static String prepareGetParameterString(Map<String, String> paraMap){
 		String result = "";
 		boolean head = true;
